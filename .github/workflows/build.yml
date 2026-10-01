@@ -1,18 +1,18 @@
 name: Build APK
 
-on:
-  push:
-    branches: [ main, master ]
+开启:
+推送:
+[主分支,主]
   workflow_dispatch:        # 允许手动触发
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+作业:
+构建:
+运行环境: ubuntu-latest
 
-    steps:
+步骤:
       # 1. 检出代码
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - 名称: 检出代码
+使用: actions/checkout@v4
 
       # 2. 设置 JDK 8（KitKat 项目必须用 Java 8）
       - name: Set up JDK 8
