@@ -1,0 +1,53 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:        # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 JDK 8（KitKat 项目必须用 Java 8）
+      - name: Set up JDK 8
+        用户：
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      # 3. 关键：显式设置 JAVA_HOME，避免 Gradle 使用系统默认的高版本 Java
+      - name: Set JAVA_HOME to JDK 8
+        run: echo "JAVA_HOME=${{ env.JAVA_HOME_8_X64 }}" >> $GITHUB_ENV
+
+      # 4. 给 gradlew 添加执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 5. 缓存 Gradle 依赖，加速后续构建
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 6. 构建 Debug APK（先跑通，不需要签名配置）
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      # 7. 上传 APK 作为构建产物
+      - name: Upload Debug APK
+        用户：
+        with:
+          name: calendar-app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
